@@ -1,5 +1,17 @@
 #  Diplomová práca - Čiastočne riadené učenie hlbokých neurónových sietí
 
+## Anotácia:
+Hlboké neurónové siete sú v súčasnosti pravdepodobne najpoužívanejšími
+a najskúmanejšími modelmi v strojovom učení s aplikáciami v mnohých
+rôznych oblastiach. Trénovanie takýchto modelov si však vyžaduje množstvo
+adekvátne označených trénovacích dát, ale zvyčajne je dobre označených dát
+z reálneho sveta málo. Paradigma semi-supervised learning (čiastočne riadené
+učenie) rieši tento problém prostredníctvom rôznych techník, ktoré sú zvyčajne
+založené na vyjadrení a vyhodnotení vzdialenosti medzi príznakovými vektormi
+(embeddings) označených a neoznačených trénovacích dát a učenie je založené
+na miere ich podobnosti. Príkladom tohto prístupu je trieda modelov hlbokých
+neurónových sietí založených na takzvanom Mean Teacher model.
+
 ## Ciele:
 - Preskúmajte existujúce modely v rámci čiastočne riadeného učenia na kategorizáciu so zameraním na model Mean Teacher (MT).
  
