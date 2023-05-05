@@ -23,3 +23,7 @@
 - [ ] nájsť vhodné hyperparametre SOM modelu
 - [ ] vyskúšanie inej modifikovácie pravidla pre počítanie SOM loss
 - [ ] experimentovanie s iným datasetom alebo inými formami samoorganizácie
+
+## Kód
+- [BMT repo](github.com/Sabka/DT-mean-teacher)
+- [MT repo](github.com/Sabka/DT-MT)
