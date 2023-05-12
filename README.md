@@ -1,5 +1,9 @@
 #  Diplomová práca - Čiastočne riadené učenie hlbokých neurónových sietí
 
+## Základné info:
+Autor: Sabína Samporová
+Vedúci: RNDr. Kristína Malinovská PhD.
+
 ## Anotácia:
 Hlboké neurónové siete sú v súčasnosti pravdepodobne najpoužívanejšími
 a najskúmanejšími modelmi v strojovom učení s aplikáciami v mnohých
