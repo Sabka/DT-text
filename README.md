@@ -2,6 +2,7 @@
 
 ## Základné info:
 Autor: Sabína Samporová
+
 Vedúci: RNDr. Kristína Malinovská PhD.
 
 ## Anotácia:
