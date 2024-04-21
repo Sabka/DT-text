@@ -1,17 +1,17 @@
-\chapter{MLP-SOM supervised model}
-\label{chap:cotraining}
+\chapter{MLP-SOM supervised model experiment}
+\label{chap:mlp-som}
 
-In this chapter, we focused on developement and testing of new method which involve  Self-organising map representation , positions of prototypes of inputs, as auxilary information used in training of Multi layer perceptron. Yet, we used simple supervised setup to find ways of usage of such auxilary information. We designed experiment for testing this method and compared the performence of MLP with and without additional structural information SOM map. This experiment was designed with table dataset containing atributes acquired from samples of several wine species
+In this chapter, we focused on the development and testing of a new method that involves Self-organising map representation, positions of prototypes of inputs, as auxiliary information used in training of Multi-layer perceptron. Yet, we used a simple supervised setup to find ways of usage of such auxiliary information. We designed an experiment for testing this method and compared the performance of MLP with and without additional structural information SOM map. This experiment was designed with a table dataset containing attributes acquired from samples of several wine species
 
 
 \section{Motivation}
-Self-organizing maps are able to naturally cluster data and project them into low dimensional representation - a map. This is determined by neurons also called prototypes. Each prototype has its weighs, which are adjusted during unsupervised training to represent subset of the input data samples. Weights of prototype has the same dimension $n$ as input data. The position of prototype on SOM map is determined by two coordinates, row and column, since two dimensional map is used. SOM is most well trained when one prototype represents inputs mostly from the same class.
+Self-organizing maps are able to naturally cluster data and project them into low-dimensional representation - a map. This is determined by neurons also called prototypes. Each prototype has its weights, which are adjusted during unsupervised training to represent a subset of the input data samples. The weights of the prototype have the same dimension $n$ as input data. The position of the prototype on the SOM map is determined by two coordinates, row and column since a two-dimensional map is used. SOM is most well-trained when one prototype represents inputs mostly from the same class.
 
-We aimed to develop an idea, to use these prototypes during learning of supervised model as supportive element. We used distance on the SOM map of SOM two prototypes representing two inputs as approximation of difference of the inputs. By that, we helped network to learn from information about difference of two samples.
+We aimed to develop an idea, to use these prototypes during learning of the supervised model as a supportive element. We used distance on the SOM map of SOM two prototypes representing two inputs as an approximation of the difference of the inputs. By that, we helped the network to learn from information about the difference between two samples.
 
 \newpage
-\section{SOM-loss propositions}
-We were considering several forms of SOM-loss. In each we use computation of euclidian distance of two vectors of size $2$ (positions on map of prototypes). Computation of euclidian distance $D_E$ of vectors $x$ and $z$ of size $2$  is shown in equation \ref{eq-dist}.
+\section{SOM based loss propositions}
+We were considering several forms of SOM-based loss. In each, we use the computation of Euclidean distance of two vectors of size $2$ (positions on the map of prototypes). The computation of Euclidean distance $D_E$ of vectors $x$ and $z$ of size $2$  is shown in equation \ref{eq-dist}.
 
 \begin{equation}
     D_E(x, z) = \sqrt{\sum_{i=1}^{2} {(x_i - z_i)}^2}
@@ -19,59 +19,57 @@ We were considering several forms of SOM-loss. In each we use computation of euc
 \end{equation}
 \bigskip
 
-\subsection{Prototype distance SOM-loss}
+\subsection{Prototype distance SOM based loss}
 \label{loss-prop1}
-First SOM-loss form we considered was based on pair of datapoints $x$ and $z$. They could be from same or different class. We found their prototypes $p(x)$ and $p(z)$ as predictions of datapoints, based on competitive principle. This notation means position of prototype in 2-dimensional grid. Then we computed their distance $D_E(p(x), p(z))$ using equation \ref{eq-dist}. If datapoints were from the same class, we wanted the distance close to zero. If second datapoint was from different class, distance should have been high. Our proposed SOM-loss is then defined by previous equation \ref{eq-dist}.
+The first SOM loss form we considered was based on a pair of data points $x$ and $z$. They could be from the same or different class. We found their prototypes $p(x)$ and $p(z)$ as predictions of data points, based on competitive principle. This notation means the position of the prototype in a two-dimensional grid. Then we computed their distance $D_E(p(x), p(z))$ using equation \ref{eq-dist}. If data points were from the same class, we wanted the distance close to zero. If the second data point was from a different class, the distance should have been high. Our proposed SOM loss is then defined by the previous equation \ref{eq-dist}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{figs/som-with-distances.png}
-    \caption{SOM map with denoted euclidian distances of selected neurons}
+    \caption{SOM map with denoted Euclidean distances of selected neurons}
     \label{fig:som-with-distances}
 \end{figure}
 
-In figure \ref{fig:som-with-distances}, we show euclidian distances of pairs of selected winners on the SOM 2-dimensional map. Distances are denoted as arrows. Orange arrow show euclidian distance of SOM map of two prototypes from incongruent classes, while pink arrow in euclidian distance between two prototypes from congruent class.
+In figure \ref{fig:som-with-distances}, we show Euclidean distances of pairs of selected winners on the SOM 2-dimensional map. Distances are denoted as arrows. The orange arrow shows the Euclidean distance of the SOM map of two prototypes from incongruent classes, while the pink arrow in Euclidean distance between two prototypes from the congruent class.
 
-Drawback of this deffinition was, that we would need to somehow discriminate which distances are small enough to represent the same class and which are big enough to represent datapoints from different class and we do not know upper bound of value of such loss. Threashold would need to be set experimentally, based on data.
+The drawback of this definition was, that we would need to somehow discriminate which distances are small enough to represent the same class and which are big enough to represent data points from different class and we do not know the upper bound of value of such loss. The threshold would need to be set experimentally, based on data.
 
-
-\newpage
-\subsection{Congruent and incongruent distance SOM-loss}
+\subsection{Congruent and incongruent distance SOM-based loss}
 \label{loss-final}
-In supervised setup, since we know all desired labels in training set, we can fix this drawback using normalization, for which we needed to compute two distances. The distance of two samples from the same (congruent) class $D_C$, and the distance of two samples from different (incongruent) classes $D_I$. We use first sample $x$, second sample $z$ from congruent class to $x$ and third $\xi$ from incongruent class. Distances are computed based on equations \ref{eq-dist3}, \ref{eq-dist4}. Then, we compute normalised loss as described in equation \ref{eq-som-loss}.
+In a supervised setup, since we know all desired labels in the training set, we can fix the drawback from section \ref{loss-prop1} using normalization, for which we need to compute two distances. The first distance was the mean distance of pairs of samples from the same (congruent) class $D_C$, and the second was the mean distance of pairs of samples from different (incongruent) classes $D_I$. We used triplets of inputs to compute the distances. Then we computed the mean distances $D_C$ and $D_I$. The first sample of triplet was denoted as $x$, the second sample $z$ was from congruent class to $x$ and the third sample $\xi$ was from incongruent class. Distances were computed based on equations \ref{eq-dist3}, \ref{eq-dist4}. Then, we computed normalized distance $D$ as described in equation \ref{eq-som-loss}.
 
 \begin{equation}
-    D_C(x, z) = D_E(x, z) 
+    D_C = \frac{1}{n} \sum_i^n D_E(g(x_i, \tau), g(z_i, \tau)) 
     \label{eq-dist3}
 \end{equation}
 
 \begin{equation}
-    D_I(x, \xi) = D_E(x, \xi) 
+    D_I = \frac{1}{n} \sum_i^n D_E(g(x_i, \tau), g(\xi_i, \tau)) 
     \label{eq-dist4}
 \end{equation}
 
 \begin{equation}
-    \text{$loss(x, z, \xi)$} = \frac{D_I(x, \xi) - D_C(x, z)}{D_I(x, \xi) + D_C(x, z)}
+    D = \frac{D_I - D_C}{D_I + D_C}
     \label{eq-som-loss}
 \end{equation}
 
-\begin{equation}
-    \text{$SOM-loss(x, z, \xi)$} = 0.5  - 0.5 \cdot \text{$loss(x, z, \xi)$}
-    \label{rescale-som-loss}
+In the following table \ref{tab-dists}, different values of distances were investigated. As a result, we can see that the proposed distance $D$ resolves all cases when distances of congruent and incongruent samples are high or low.
+We can explain these cases. The first and last cases are when distances are really close and the loss is 0, so it has no information value because distances give no information about the sample being closer to the original sample, whether congruent or incongruent. In case 2, the result is positive and it is a good case when the incongruent sample is far from the original and congruent is close to the original. In the third case, loss is negative and this is the case when distances are opposite as they should be. We decided to rescale this loss with absolute values from interval $(0, 1)$. The equation \ref{rescale-som-loss} explains this scaling and provides a loss function that acquires only non-negative and loss is lower when the distance of congruent samples is small and of incongruent is high. Loss is high if the mistake in distance is high.
+
+\begin{equation}\label{rescale-som-loss}
+\begin{split}
+J_S(\tau) = \frac{1}{2}  - \frac{1}{2} \cdot D = \frac{1}{2}\Biggl(1 - \frac{D_I - D_C}{D_I + D_C}\Biggr) = \\[20pt]  
+\frac{1}{2}(\frac{D_I + D_C}{D_I + D_C} - \frac{D_I - D_C}{D_I + D_C}) = 
+\frac{1}{2}(\frac{2D_C}{D_I + D_C}) = \frac{D_C}{D_I + D_C}
+\end{split}
 \end{equation}
 
-\bigskip
-
-In the following table \ref{tab-dists}, different values of distances were investigated. As a result, we can see that proposed $loss$ resolve all cases when distances of congruent and incongruent samples are high or low.
-We can explain these cases. First and last cases are, when distances are really close and the loss is 0, so it has no information value, because distances give no infomation about sample is closer to original sample, whether congruent or incongruent. In case 2, result is positive and it is a good case when incongruent sample is far from original and congruent is close to original. In third case, loss is negative and this is the case, when distances are opposite as they should be. We decided to rescale this loss again, based on \ref{rescale-som-loss}, since we want loss to be non-negative. After this operation, negative values are not possible, loss is from interval $(0, 1)$ and it is lower when distance of congruent samples is small and of incongruent is high. Loss is high if mistake in distance is high.
-
-\bigskip
 
 \begin{table}[ht]
     \centering
     \begin{tabular}{|rr|rr|rr|rr|}
     \hline
-    \multicolumn{2}{|c|}{$D_I$}            & \multicolumn{2}{c|}{$D_C$}            & \multicolumn{2}{c|}{$\text{loss}$}                & \multicolumn{2}{c|}{$\text{SOM-loss}$}                \\ \hline
+    \multicolumn{2}{|c|}{$D_I$}            & \multicolumn{2}{c|}{$D_C$}            & \multicolumn{2}{c|}{$D$}                & \multicolumn{2}{c|}{$J_S$}                \\ \hline
     
     \multicolumn{1}{|r|}{1000} & high & \multicolumn{1}{r|}{1000} & high & \multicolumn{1}{r|}{0}      & middle & \multicolumn{1}{r|}{0.5}    & middle \\ \hline
     
@@ -79,33 +77,38 @@ We can explain these cases. First and last cases are, when distances are really 
     \multicolumn{1}{|r|}{1}    & low  & \multicolumn{1}{r|}{1000} & high & \multicolumn{1}{r|}{-0.998} & low    & \multicolumn{1}{r|}{0.99}   & high   \\ \hline
     \multicolumn{1}{|r|}{1}    & low  & \multicolumn{1}{r|}{1}    & low  & \multicolumn{1}{r|}{0}      & middle & \multicolumn{1}{r|}{0.5}    & middle \\ \hline
     \end{tabular}
-    \caption{SOMloss with different distances}
+    \caption{Distance function $D$ in all possible cases}
     \label{tab-dists}
 \end{table}
 
 \subsection{Supervised loss and SOM loss combined}
-We proposed combined loss $\text{SOM-Sup-Loss}$ which combine supervised loss (MSE) and $\text{SOM-loss}$ multiplied by hyperparameter $\kappa$, as shown in equation \ref{comb-loss}.
-Parameter $\kappa$ is lineraly ramped down during the training from maximum value to zero. Value of $\kappa$ in epoch $t$ is denoted as $\kappa(t)$.
+We proposed combined loss $Loss$ which combines supervised loss $S$ defined in equation \ref{eq:mt-som-sup} as mean squared error of model prediction and desired output $\hat{y}$ and $J_S$ multiplied by hyperparameter $\kappa$, as shown in equation \ref{comb-loss}.
+Parameter $\kappa$ is linearly ramped down during the training from maximum value to zero. Value of $\kappa$ in epoch $t$ is denoted as $\kappa(t)$.
 
 \begin{equation}
-    \text{SOM-Sup-Loss\text{$(x, z, \xi, \hat{y}, t)$}} = MSE(x, \hat{y}) + \kappa(t) \cdot \text{SOM-Loss\text{$(x, z, \xi)$}}
+	S(\theta) = \frac{1}{n} \sum_i^n  ||g(x_i, \theta), \hat{y}||^2
+	\label{eq:mt-som-sup}
+\end{equation} 
+
+\begin{equation}
+    Loss(\theta) = S(\theta) + \kappa(t) \cdot J_S(\tau)
     \label{comb-loss}
 \end{equation}
 
 \section{Experiment}
-We designed experiment to investigate how proposed $\text{SOM-Sup-Loss}$ influence the learning abilities of supervised model in task of classification into three classes. We compare baseline supervised model - Multi layer perceptron with mean-squared error loss and the same model in setup with $\text{SOM-Sup-Loss}$. We used pretrained SOM for determining distances of samples and for computation of $\text{SOM-Sup-Loss}$.
+We designed an experiment to investigate how proposed $\text{SOM-Sup-Loss}$ influences the learning abilities of the supervised model in the task of classification into three classes. We compare the baseline supervised model - Multi-layer perceptron with mean squared error loss and the same model in setup with $\text{SOM-Sup-Loss}$. We used pre-trained SOM for determining distances of samples and for computation of $\text{SOM-Sup-Loss}$.
 
 \subsection{Wine dataset}
-We chose table dataset called Wine dataset. These data are the results of a chemical analysis of wines grown in the same region in Italy but derived from three different cultivars. The analysis determined the quantities of 13 constituents found in each of the three types of wines. Data was vectors of length $13$ from three classes defined by the three cultivars. The dataset contained $59$, $71$ and $48$ training samples per class. \cite{misc_wine_109} 
-We chose the table dataset rather than image dataset to accelerate our research.
+We chose a table dataset called the Wine dataset. These data are the results of a chemical analysis of wines grown in the same region in Italy but derived from three different cultivars. The analysis determined the quantities of 13 constituents found in each of the three types of wines. Data was vectors of length $13$ from three classes defined by the three cultivars. The dataset contained $59$, $71$ and $48$ training samples per class. \cite{misc_wine_109} 
+We chose the table dataset rather than the image dataset to accelerate our research, since image datasets are much more demanding in terms of resources and therefore take much longer training time.
 
-We split dataset into training and testing part such that test dataset contained approximately $25\%$ of samples, and each class had the same number of samples in testing dataset. That meant $15$ samples from each class. Other $75\%$ of data created training dataset. In this training dataset, data were reorganized in the way that each sample was paired with another sample from the same class and another sample form different class. Final training dataset was composed of $6650$ triplets. We refer to the the first sample of triplet as original sample, second sample as congruent sample and third sample as incongruent sample.
+We split the dataset into training and testing parts such that the test dataset contained approximately $25\%$ of samples, and each class had the same number of samples in the testing dataset. That meant $15$ samples from each class. Other $75\%$ of data created training dataset. In this training dataset, data were reorganized in the way that each sample was paired with another sample from the same class and another sample from a different class. The final training dataset was composed of $6650$ triplets. We refer to the first sample of triplet as the original sample, the second sample as a congruent sample, and the third sample as an incongruent sample.
 
 \subsection{Baseline}
 \label{sup-baseline}
-As the baseline we chose Multi layer perceptron (MLP) trained in fully supervised setup. We used mean-squared error loss function. We started with architecture with 4 layers with few tenths of neurons in each layer and sigmoid activation functions. Such model was too complex for this tiny dataset and after selection of appropriate learning rate parameter, it was able to train on dataset and discriminate classes with $100\%$ test accuracy. 
+As the baseline, we chose a Multi-layer perceptron (MLP) trained in a fully supervised setup. We used the mean squared error loss function. We started with architecture with 4 layers with few tenths of neurons in each layer and sigmoid activation functions. Such a model was too complex for this tiny dataset and after the selection of appropriate learning rate parameter, it was able to train on the dataset and discriminate classes with $100\%$ test accuracy. 
 
-Since we wanted to show advantages of model that which use SOM, we decreased the complexity of the architecture. We chose architecture with only one hidden layer, with $15$ neurons and sigmoid activation function. Complete structure of layers is shown in table \ref{mlp=layers}. MLP with this architecture was not able to achieve $100\%$ testing accuracy on the dataset, so it was suitable for our experiment.
+Since we wanted to show the advantages of the model that uses SOM, we decreased the complexity of the architecture. We chose architecture with only one hidden layer, with $15$ neurons and a sigmoid activation function. The complete structure of layers is shown in table \ref{mlp=layers}. MLP with this architecture was not able to achieve $100\%$ testing accuracy on the dataset, so it was suitable for our experiment.
 
 
 \begin{table}[ht]
@@ -114,56 +117,56 @@ Since we wanted to show advantages of model that which use SOM, we decreased the
      \hline
             Layer & Number of neurons & Activation function\\
             \hline
-            input FC & 13 &  - \\
-            hidden FC & 15 & sigmoid  \\
-            output FC  & 3 & softmax \\
+            input fully connected & 13 &  - \\
+            hidden fully connected & 15 & sigmoid  \\
+            output fully connected  & 3 & softmax \\
      \hline
     \end{tabular}
     \caption{Architecture of MLP}
     \label{mlp=layers}
 \end{table}
 
-Model was implemented using Pytorch library \cite{pytorch} with default weight initialization.
+The model was implemented using PyTorch library \cite{pytorch} with default weight initialization.
 Other parameters of MLP were learning rate and optimizer type. \textbf{Learning rate} was set to $0.0001$ and \textbf{Adam optimizer} was used. 
 
 
 
 
 \subsection{MLP-SOM model}
-For our MLP-SOM model, we used the same architecture \ref{mlp=layers} as for baseline. We used combined loss described in \ref{comb-loss}. We were considering several ways how to include SOM information into MLP. We tried to train SOM in each epoch of training MLP, but it led to ovefit in SOM, since SOM inputs did not change and dataset is low in complexity and number of samples. To resolve this problem we rather used pretrained SOM. We pretrained SOM on data samples and use information from SOM predictions in unsupervised part of loss \ref{comb-loss}. 
+For our MLP-SOM model, we used the same architecture \ref{mlp=layers} as for the baseline. We used combined loss described in \ref{comb-loss}. We were considering several ways how to include SOM information in MLP. We tried to train SOM in each epoch of training MLP, but it led to overfit in SOM, since SOM inputs did not change and the dataset is low in complexity and number of samples. To resolve this problem we rather used pre-trained SOM. We pre-trained SOM on data samples and used information from SOM predictions in the unsupervised part of loss \ref{comb-loss}. 
 
 
-\subsubsection{Pretrained SOM}
+\subsubsection{Pre-trained SOM}
 \label{pretrained-som}
-SOM topology consisted of $5 \times 5$ neurons. SOM hyperparameters were learning rate $\alpha$ which was linearly ramped down from maximal value $0.3$ to $0$. As neighbour function in SOM training gaussian function with parameter $\sigma$ was used. This parameter was linearly ramped down from value $2.5$ to $0$. SOM was trained for $20$ epochs and the map representation is shown in figure \ref{fig:somka}.
-SOM metrices at the end of training were quantization error = $682.59$, winner discrimination = $100 \%$, entropy = $4.37$. Change of these metrices in time ($20$ epochs) are shown in graphs in figure \ref{fig:som-metrices}.
+SOM topology consisted of $5 \times 5$ neurons. SOM hyperparameters were learning rate $\alpha$ which was linearly ramped down from maximal value $0.3$ to $0$. As a neighbor function in SOM training Gaussian function with parameter $\sigma$ was used. This parameter was linearly ramped down from value $2.5$ to $0$. SOM was trained for $20$ epochs and the map representation is shown in figure \ref{fig:somka}.
+SOM metrics at the end of training were quantization error = $682.59$, winner discrimination = $100 \%$, entropy = $4.37$. Change of these metrics in time ($20$ epochs) are shown in graphs in figure \ref{fig:som-metrices}.
 
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{figs/som1710255005.5160155.png}
-    \caption{SOM used for experiment}
+    \caption{SOM used for Wine experiment}
     \label{fig:somka}
 \end{figure}
 
-SOM we use is well organized, as shown in figure \ref{fig:som}. We can see three separated clusters corresponding three classes in the dataset. There are two outayer red prototypes from class 3 not connected to rest of the prototypes from class 3 in right upper corner of the map. From SOM metrices in figure \ref{fig:som-metrices} we cas infer that the quantization error has decreasing trend, which is good. Winner discrimination is between $96\%$ and $100\%$ which means at least $96\%$ of neurons were chosen as prototype for some datapoint, so we use almost all and in last few epochs all the parameters of model to encode subset of input samples. Entropy has increasing trend, which is also correct.
+SOM we use is well organized, as shown in figure \ref{fig:som}. We can see three separate clusters corresponding to three classes in the dataset. There are two outlier red prototypes from class 3 not connected to the rest of the prototypes from class 3 in the right upper corner of the map. From SOM metrics in figure \ref{fig:som-metrices}, we can infer that the quantization error has a decreasing trend, which is good. Winner discrimination is between $96\%$ and $100\%$ which means at least $96\%$ of neurons were chosen as the prototype for some datapoint, so we use almost all and in the last few epochs all the parameters of the model to encode a subset of input samples. Entropy has an increasing trend, which is also correct.
 
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figs/som-stats.png}
-    \caption{SOM metrices during training}
+    \caption{SOM metrics during training}
     \label{fig:som-metrices}
 \end{figure}
 
-\newpage
+
 \subsection{Wine experiment results}
 
-In each experiment, we focused on investigation of model metrices for several values of hyperparameter $\kappa$ in different setups (number of epochs, architectures, weight initializations, rampup types). We trained each setup $20$ times, and all shown results are means and standard deviations of $20$ training runs of model with described parameters. Following sections contain graphs with visualisations of metrices during training. Means of $20$ runs are marked as dot (baseline model) or triangle (MLP-SOM model) and standard deviations are mared as vertical lines. 
+In each experiment, we focused on the investigation of model metrics for several values of hyperparameter $\kappa$ in different setups (number of epochs, architectures, weight initialization, ramp-up types). We trained each setup $20$ times, and all shown results are means and standard deviations of $20$ training runs of the model with described parameters. The following sections contain graphs with visualizations of metrics during training. Means of $20$ runs are marked as dots (baseline model) or triangles (MLP-SOM model) and standard deviations are marked as vertical lines. 
 
 \subsubsection{Experiment 1 (100 epochs)}
 
-In this experiment, we trained baseline and model with different values of hyperparameter $\kappa$ for 100 epochs. Investigated $\kappa$ values were from interval $0$ to $1$. Best performing model was MLP-SOM model with $\kappa = 0.9$ with mean test accuracy $84.67 \pm 10.40$. Baseline had mean test accuracy $82.11	\pm 16.08$. In figure \ref{exp1-graphs} we shown training and testing progress plots of baseline and best performing model. Training and test metrices of all investigated setups are displayed in table \ref{exp1-res-table}.
+In this experiment, we trained the baseline and model with different values of hyperparameter $\kappa$ for 100 epochs. Investigated $\kappa$ values were from interval $0$ to $1$. The best-performing model was the MLP-SOM model with $\kappa = 0.9$ with mean test accuracy $84.67 \pm 10.40$. The baseline had a mean test accuracy of $82.11	\pm 16.08$. In figure \ref{exp1-graphs} we have shown training and testing progress plots of baseline and best-performing model. Training and test metrics of all investigated setups are displayed in table \ref{exp1-res-table}.
 
 
 \begin{table}[h!]
@@ -193,10 +196,10 @@ $1$   &   $0.068	\pm 0.061 $  &  $82.67	\pm 11.98$  \\ \hline
     \label{exp1-graphs}
 \end{figure}
 
-The difference between test accuracies of baseline and model indicate that SOM supported supervised model to produce better predictions. From the metrices graph \ref{exp1-graphs} we can see, that test accuracies change in time looks similar for both models. Baseline has higher standard deviation. In case of loss, for MLP-SOM model, it decreases faster than for baseline model. The trend of model's loss indicates, that it is able to continue to decrease, if we continue training for more epochs. Based on this observation, next experiment investigate similar setups for 500 epoch for values of $\kappa$ which performed good in this experiment.
+The difference between the test accuracies of the baseline and model indicates that SOM supported the supervised model to produce better predictions. From the metrics graph \ref{exp1-graphs} we can see, that test accuracies change in time looks similar for both models. The baseline has a higher standard deviation. In case of loss, for the MLP-SOM model, it decreases faster than for the baseline model. The trend of the model's loss indicates that it is able to continue to decrease, if we continue training for more epochs. Based on this observation, the next experiment investigated similar setups for 500 epochs. The experiment was run for values of $\kappa$ that performed well in this experiment.
 
 \subsubsection{Experiment 2 (500 epochs)}
-In this experiment, we trained models with $\kappa$ values $0.2$, $0.7$, $0.9$ and $1$. Again, best performing model had $\kappa = 0.9$. Metrices of this model are shown in figure \ref{exp2-graphs}. The progress plots looks quite similar to previous experiment and final accuracy is higher for both models. Losses are lower in comparison to 100 epoch training. MLP-SOM model still has better performance than baseline, it is more than $2.5\%$ better.
+In this experiment, we trained models with $\kappa$ values $0.2$, $0.7$, $0.9$ and $1$. Again, the best-performing model had $\kappa = 0.9$. Metrics of this model are shown in figure \ref{exp2-graphs}. The progress plots look quite similar to the previous experiment and the final accuracy is higher for both models. Losses are lower in comparison to 100 epoch training. MLP-SOM model still has better performance than the baseline, it is more than $2.5\%$ better.
 
 \begin{table}[h!]
 \centering
@@ -232,7 +235,7 @@ $1$   &   $0.047	\pm 0.090 $  &  $82.78	\pm 19.56$  \\ \hline
 \newpage
 \subsubsection{Experiment 3 (10 hidden neurons, 250 epochs)}
 
-In this experiment, we focused on even smaller baseline and MLP-SOM architecture. New architecture contained one hidden layer with only $10$ neurons. Architecture is described in table \ref{mlp=layers=small}. 
+In this experiment, we focused on an even smaller baseline and MLP-SOM architecture. The new architecture contained one hidden layer with only $10$ neurons. Architecture is described in table \ref{mlp=layers=small}. 
 
 \begin{table}[ht]
     \centering
@@ -240,16 +243,16 @@ In this experiment, we focused on even smaller baseline and MLP-SOM architecture
      \hline
             Layer & Number of neurons & Activation function\\
             \hline
-            input FC & 13 &  - \\
-            \color{purple} hidden FC & \color{purple} 10 & sigmoid  \\
-            output FC  & 3 & softmax \\
+            input fully connected & 13 &  - \\
+            \color{purple} hidden fully connected & \color{purple} 10 & sigmoid  \\
+            output fully connected  & 3 & softmax \\
      \hline
     \end{tabular}
     \caption{Smaller architecture of MLP}
     \label{mlp=layers=small}
 \end{table}
 
-Training a and test metrices are shown in table \ref{exp3-res-table}. Best performing model has accuracy on test set $76.11	\pm 19.76$ and hyperparameter $\kappa = 0.7$. Baseline has accuracy $69.78	\pm 23.9$. Again, MLP-SOM model has better performance, difference is approximately $6.3\%$. We can see, that both, baseline and model with combined loss has worse accuracy than in previous experiments. It is probably caused by smaller architecture. Figure \ref{exp3-graphs} shows progress plots of MLP-SOM with $\kappa = 0.7$ and baseline.
+Training a and test metrics are shown in table \ref{exp3-res-table}. The best-performing model has accuracy on the test set $76.11	\pm 19.76$ and hyperparameter $\kappa = 0.7$. The baseline has accuracy of $69.78	\pm 23.9$. Again, the MLP-SOM model has better performance, difference is approximately $6.3\%$. We can see, that both, the baseline and model with combined loss has worse accuracy than in previous experiments. It is probably caused by smaller architecture. Figure \ref{exp3-graphs} shows progress plots of MLP-SOM with $\kappa = 0.7$ and baseline.
 
 
 
@@ -280,9 +283,9 @@ $0.9$ &   $0.065	\pm 0.098 $  &  $73.22	\pm 20.91$   \\ \hline
 \newpage
 \subsubsection{Experiment 4 (weight initialization)}
 
-In all previous experiments we used default PyTorch weight initialization in input and hidden layer. In this experiment, we wanted to check, whether different weight initialization improve performance.
+In all previous experiments, we used default PyTorch weight initialization in the input and hidden layer. In this experiment, we wanted to check, whether different weight initialization improves performance.
 
-Default PyTorch weight initializaiton for fully connected layer (linear layer in PyTorch) is from Kaiming He probability density function with parameter $a = \sqrt{5}$. PyTorch documentation says, that this is equivaletn to uniform distribution $U(\frac{-1}{\sqrt{d_{in}}}, \frac{1}{\sqrt{d_{in}}})$, where $d_{in}$ means number of input features (for our dataset, it is $13$).
+Default PyTorch weight initialization for the fully connected layer (linear layer in PyTorch) is from the Kaiming He probability density function with parameter $a = \sqrt{5}$. PyTorch documentation says, that this is equivalent to uniform distribution $U(\frac{-1}{\sqrt{d_{in}}}, \frac{1}{\sqrt{d_{in}}})$, where $d_{in}$ means a number of input features (for our dataset, it is $13$).
 
 We compared this default initialization with initialization from Gaussian (normal) distribution with parameters $\mu = 0$ and $\sigma = 0.2$, marked $N(0, 0.2)$. From the table \ref{exp4-res-table} of results, we can see, that all models with weights initialized from normal distribution had worse performance than ones that were initialized using default PyTorch weight initialization. 
 
@@ -305,9 +308,9 @@ $1$   &  $82.67	\pm 11.98$ &  $78.56	\pm 18.64$   \\ \hline
 \end{table}
 
 
-\subsubsection{Experiment 5 (non-linear $\kappa$ rampdown)}
+\subsubsection{Experiment 5 (non-linear $\kappa$ ramp down)}
 
-Since we introduced parameter $\kappa$ for ratio of SOM-loss in combined loss and used it in setup when it is linearly ramped down in this experiment we study other possible forms of parameter ramping. Linear rampdown for different values is shown on Fig.\ref{fig:ramps} on the left and definition of $\kappa(t)$ is in equations \ref{eq-t} and \ref{eq-linear-ramp}.
+Since we introduced parameter $\kappa$ for the ratio of $J_S$ in combined loss and used it in setup when it is linearly ramped down in this experiment we study other possible forms of parameter ramping. Linear ramp down for different values is shown in Fig.\ref{fig:ramps} on the left and the definition of $\kappa(t)$ is in equations \ref{eq-t} and \ref{eq-linear-ramp}.
 
 \begin{equation}
     t = \frac{current\ epoch}{total\ epochs}
@@ -319,7 +322,7 @@ Since we introduced parameter $\kappa$ for ratio of SOM-loss in combined loss an
     \label{eq-linear-ramp}
 \end{equation}
 
-We tried two other types of ramps, Sigmoid rampdown (Fig.\ref{fig:ramps} in the middle) and combined Sigmoid rampup and Sigmoid rampdown (Fig.\ref{fig:ramps} on the right). Sigmoid rampdown was inspired by implementation\footnote{\url{github.com/CuriousAI/mean-teacher/blob/master/pytorch/mean_teacher/ramps.py}} of Mean Teacher model. Value of $kappa(t)$ was set based on equation \ref{eq-sigm-ramp}. We study also combined Sigmoid rampup and Sigmoid rampdown and $kappa(t)$ was set as in equation \ref{eq-comb-ramp}.
+We tried two other types of ramps, sigmoid ramp down (Fig.\ref{fig:ramps} in the middle) and combined sigmoid ramp up and sigmoid ramp down (Fig.\ref{fig:ramps} on the right). sigmoid ramp down was inspired by a ramp in implementation of the Mean Teacher model \cite{curiousai}. Value of $kappa(t)$ was set based on equation \ref{eq-sigm-ramp}. We study also combined sigmoid ramp up and sigmoid ramp down and $kappa(t)$ was set as in equation \ref{eq-comb-ramp}.
 
 \begin{equation}
     \kappa(t) = \kappa \cdot e^{-5 \cdot t^2}
@@ -349,7 +352,7 @@ We tried two other types of ramps, Sigmoid rampdown (Fig.\ref{fig:ramps} in the 
 \centering
 \begin{tabular}{|l|l|l|l|}
 \hline
-$\kappa$        & linear rampdown & sigmoid rampdown & rampup + rampdown \\ \hline
+$\kappa$        & linear ramp down & sigmoid ramp down & ramp up + ramp down \\ \hline
 $0$   &  \color{purple} $82.11	\pm 16.08$ &                         &  \\ \hline
 $0.2$ &  $84.00	\pm 10.74$ &  $85.11	\pm 14.73$   &  $80.89	\pm 16.59$ \\ \hline
 $0.3$ &  $81.56	\pm 13.84$ &  $85.33	\pm 11.38$   &  $79.78	\pm 18.2$  \\ \hline
@@ -363,32 +366,32 @@ $1$   &  $82.67	\pm 11.98$ &  $79.11	\pm 16.61$   &  $78.44	\pm 18.62$ \\ \hline
 \end{table}
 
 
-From the table of results, we can see, that overall best performing model used Sigmoid rampdown function and $\kappa$ hyperparameter set to $0.7$. This model has test accuracy $89.22	\pm  6.53$. Baseline model is the same for all types of ramps, because when $\kappa = 0$, then for all t $\kappa(t)$ is also equal to zero. This holds for all three ramp types. Baseline model accuracy is $82.11	\pm 16.08$, so MLP-SOM model is $7\%$ better than baseline. 
+From the table of results, we can see, that the overall best-performing model used the sigmoid ramp-down function and $\kappa$ hyperparameter set to $0.7$. This model has a test accuracy of $89.22	\pm  6.53$. The baseline model is the same for all types of ramps, because when $\kappa = 0$, then for all t $\kappa(t)$ is also equal to zero. This holds for all three ramp types. Baseline model accuracy is $82.11	\pm 16.08$, so the MLP-SOM model is $7\%$ better than the baseline. 
 
-We can see, that combined ramp has worse results than linear and Sigmoid ramps. Sigmoid ramps work better for smaller values of $\kappa$ and for values $0.2$ and $0.3$ has better results than linear ramp. In case of higher $\kappa$ values, linear ramp worked better.
+We can see, that combined ramp has worse results than linear and sigmoid ramps. sigmoid ramps work better for smaller values of $\kappa$ and for values $0.2$ and $0.3$ has better results than linear ramp. In case of higher $\kappa$ values, the linear ramp worked better.
 
 
 \subsection{Zoo experiment results}
-As another step of our experimentation, we tried proposed MLP-SOM model performance with different dataset. We chose dataset called Zoo Animal dataset. It is tiny table dataset with description of animals from $7$ categories. Each sample is described by $16$ boolean or integer atributes. There are $101$ samples in the dataset. We devided samples into test and train set. Test set contained $2$ samples from each category, so it was composed of $14$ samples. Rest of samples were used to create $7830$ triplets - training dataset.
+As another step of our experimentation, we tried to reproduce MLP-SOM model performance with different dataset. We chose a dataset called Zoo Animal dataset. It is tiny table dataset with a description of animals from $7$ categories. Each sample is described by $16$ boolean or integer attributes. There are $101$ samples in the dataset. We divided samples into test and train sets. The test set contained $2$ samples from each category, so it was composed of $14$ samples. The rest of the samples were used to create $7830$ triplets - training dataset.
 
-We pretrained SOM with training data for $50$ epochs. The map is shown in figure \ref{fig:som-zoo}. We can see, that half of neurons were never chosen as winner, which corresponds to winner discrimination metric. Other two metrices - entropy and quantization error - had correct increasing and decreasing trends.
+We pre-trained SOM with training data for $50$ epochs. The map is shown in figure \ref{fig:som-zoo}. We can see, that half of the neurons were never chosen as winners, which corresponds to the winner discrimination metric. The other two metrics - entropy and quantization error - had correct increasing and decreasing trends.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{figs/som1710884692.939712.png}
-    \caption{Pretrained SOM map after 50 epochs}
+    \caption{Pre-trained SOM map after 50 epochs}
     \label{fig:som-zoo}
 \end{figure}
 
 
-In this experiment, we tried all promissing $\kappa$ values, both weight initialization methods and linear and sigmoid ramps. Table of results \ref{tab:zoo} shows mean and stansard deviations of $10$ models for each combination of hyperparameters. The baseline has test accuracy $92.14\pm 2.14$. We can see, that any model with sigmoid ramp has worse accuracy than baseline. We can also see, that all of the models with linear ramp has at least that good accuracy as baseline. The highest accuracy has model with $\kappa = 0.75$ and gaussian weight initialization, however it has quite high standard deviation compared to the baseline. We can see, that model with $\kappa = 0.75$ and PyTorch weight initialization, same as model with $\kappa = 0.5$ and gaussian weight initialization, has accuracy $93.57\pm 2.14$, which is the same standard deviation as in baseline and the difference of means is almost $1.5\%$.
+In this experiment, we tried all promising $\kappa$ values, both weight initialization methods and linear and sigmoid ramps. Table of results \ref{tab:zoo} shows mean and standard deviations of $10$ models for each combination of hyperparameters. The baseline has the test accuracy of $92.14\pm 2.14$. We can see, that any model with a sigmoid ramp has worse accuracy than baseline. We can also see, that all of the models with linear ramp have at least that good accuracy as the baseline. The highest accuracy has the model with $\kappa = 0.75$ and Gaussian weight initialization, however, it has quite a high standard deviation compared to the baseline. We can see, that a model with $\kappa = 0.75$ and PyTorch weight initialization, the same as a model with $\kappa = 0.5$ and Gaussian weight initialization, has accuracy $93.57\pm 2.14$, which is the same standard deviation as in baseline and the difference of means is almost $1.5\%$.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{|c|cc|cc|}
 \hline
      & \multicolumn{2}{c|}{linear ramp} & \multicolumn{2}{c|}{sigmoid ramp} \\ \hline
- & \multicolumn{1}{c|}{Pytorch init} & $N(0, 0.2)$ init & \multicolumn{1}{c|}{Pytorch init} & $N(0, 0.2)$ init \\ \hline
+ & \multicolumn{1}{c|}{PyTorch init} & $N(0, 0.2)$ init & \multicolumn{1}{c|}{PyTorch init} & $N(0, 0.2)$ init \\ \hline
 base  & \multicolumn{1}{c|}{$92.14\pm 2.14$}    &   $92.14\pm 2.14$   & \multicolumn{1}{c|}{}      &       \\ \hline
 0.25  & \multicolumn{1}{c|}{$92.86\pm 0.00$}     &   $93.57\pm 3.85$   & \multicolumn{1}{c|}{$80.0	\pm 2.86$}      &  $81.43\pm 3.50$     \\ \hline
  0.5  & \multicolumn{1}{c|}{$92.86\pm 0.00$}     &   $93.57\pm 2.14$   & \multicolumn{1}{c|}{$80.0	\pm 2.86$}      &  $79.29\pm 2.14$    \\ \hline
@@ -400,5 +403,8 @@ base  & \multicolumn{1}{c|}{$92.14\pm 2.14$}    &   $92.14\pm 2.14$   & \multico
 \label{tab:zoo}
 \end{table}
 
+\section{Implementation}
+This experiment was implemented using PyTorch library \cite{pytorch}. The implementation of SOM was adapted from this repository \cite{som-repo}. Experiment implementation is available in our GitHub repository \cite{dt-mt-repo}. It can be found in folder \\ \texttt{pytorch/experiments/som-loss-developement}. File \texttt{dataset.py} is shared for the Wine and Zoo experiment. In sub-folders \texttt{wine} and \texttt{zoo}, the source code of MT-SOM models and pre-training of SOM with proper size and input dataset are placed. 
+
 \section{Discussion}
-In this chapter, we show that SOM based auxilary information can help in training of supervised multi layer perceptron. We proved our concept of MLP-SOM model on two datasets. For each dataset, experiments show, that test accuracy of MLP-SOM is better than accuracy of vanilla multi layer perceptron with the same architecture. Based on these results, we have strong belief, that SOM topology information as auxilary loss will help also in semisupervised setup.
+In this chapter, we show that SOM-based auxiliary information can help in the training of supervised Multi-layer perceptron. We proved our concept of the MLP-SOM model on two datasets. For each dataset, experiments show, that the test accuracy of MLP-SOM is better than the accuracy of vanilla Multi-layer perceptron with the same architecture. Based on these results, we have a strong belief, that SOM topology information as an auxiliary loss will help also in semi-supervised setup.

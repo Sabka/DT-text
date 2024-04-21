@@ -1,5 +1,27 @@
 \chapter*{Introduction} % chapter* je necislovana kapitola
 \addcontentsline{toc}{chapter}{Introduction} % rucne pridanie do obsahu
 \markboth{Introduction}{Introduction} % vyriesenie hlaviciek
-\color{red} TODO \color{black}
 
+
+Artificial neural networks (ANN, NN) are widely used models of artificial intelligence, they are also objects of research around the world. In the last few years, NN-based tools have become more popular in public and are used to make some activities more efficient. Most neural models require a large amount of data to train on to become efficient and achieve good results in their function. What is more, in the most conventional approach - supervised learning - to train such a model, the data need to be divided into specific classes, which assign them a label. The creation of a huge enough dataset with high quality for a specific task is usually a difficult and time-consuming task. Therefore, research focused also on different training techniques, such as semi-supervised learning. 
+
+Semi-supervised learning idea is that a dataset contains a portion of labeled data, but most of the dataset is formed by data, that are not labeled. These models work with both, labeled and unlabeled data, to improve the abilities of the model. Since the portion of labeled data is smaller (usually under $10\%$) and there is no need for labeling all the data, much time and resources are saved.
+
+Many of the successful semi-supervised models are based on the consistency idea. They require consistency of two predictions by using consistency as part of the loss function of the model. These predictions can be from the same model, but two perturbations of input, or from multiple models. We suggested using the concept of self-organization for the determination of the prediction consistency.
+
+Self-organization is a process present in nature when parts of the system make changes that are heading to the system with some order or topology. There are also statistical methods that are based on the self-organization concept, such as t-distributed stochastic neighbor embedding (t-SNE) and Principal component analysis, which transform multi-dimensional data into lower dimensions. Another model that serves for this task is a neural-based model called a Self-organizing map (SOM). SOM provides non-linear transformation of data and the well-trained map cluster data. This model is trained in an unsupervised manner, so it does not need data with labels, only the data. This is one of the reasons, why SOM is ideal for semi-supervised learning because it can use all the data from the training set - labeled and unlabeled. In our approach, we combined these two ideas of semi-supervised learning and self-organization and created a model, which uses the advantages of both of them.
+
+
+In chapter \ref{chap:overwiev}, we describe basic concepts of neural network and training approaches, as well as examples of models from the supervised, semi-supervised and unsupervised approaches, that are relevant to this thesis. We especially focus on different techniques in semi-supervised learning and finish the chapter with a brief comparison of the performance of selected semi-supervised model. 
+
+In chapter \ref{chap:bmt-exp}, we focus on a semi-supervised model called Binary mean teacher which is suitable for binary classification tasks. We designed an experiment in which we compared the performance of this model in comparison to the supervised baseline. In this experiment, we investigated model performance in a setup with a tiny amount of labeled data, even smaller, than investigated in previous experiments with this model.
+
+Chapter \ref{chap:research} provides the description of our steps in the proposition of a new model that enriches semi-supervised learning with self-organization. We briefly described related work and the ideas that we can take over. We also described the main parts of our new model.
+
+Chapter \ref{chap:mt-exp} focuses on one of the crucial parts of our model - the definition of self-organization based loss. We studied the proposed loss in a simple supervised setup, we called this combined model MLP-SOM. All the data we used were labeled and the neural network was supported by a self-organization based loss function. We showed, that auxiliary self-organization based loss helps the performance of the model in a supervised setup.
+
+Also chapter \ref{chap:som-fv-cifar} studies one of the main concepts of our model in a more simple environment. The aim of the study is the usage of feature vectors as input for the Self-organization map instead of unmodified image input. In this chapter, we compare qualitative and quantitative metrics of both input type approaches.
+
+Finally, in chapter \ref{chap:research}, we describe the proposed MT-SOM semi-supervised model in detail and study its performance in task multi-class classification in comparison to supervised baseline.
+
+The closing chapter summarises the main outcomes of the thesis thesis and suggests ideas for the future continuation of this research.

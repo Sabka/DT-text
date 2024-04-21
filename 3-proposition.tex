@@ -2,20 +2,27 @@
 
 \label{chap:research}
 
-We aimed to create new semi-supervised model which include concept of self-organization in uninformed part of semi-supervised model. This chapter contains selection of self-organizing model, our first design of new semi-supervised model and its drawbacks and proposition of final design of the new model, which will be fine tuned in following chapters.
+The aim of this thesis was to create a new semi-supervised model. The concept which we decided to include in this new model is self-organization. Self-organizing models do not need labels to learn data topology, so it is suitable for all training data of semi-supervised models - labeled and also unlabeled. This chapter contains steps toward the proposition of the model, such as the selection of a self-organizing model, the designing of a new semi-supervised model and the definition of its crucial parts, which will be investigated in the following chapters.
 
-Unsupervised loss in semi-supervised learning is mostly based on prediction consistency. In case of Mean Teacher model, this consistency is between predictions of teacher and student model. Other models, for example Siamese neural network, holds consistency between predictions of one model on sample augmented in two different ways.
+The unsupervised part of the loss function in semi-supervised learning is mostly based on prediction consistency. In case of the Mean Teacher model, this consistency is between predictions of the teacher and student model. Other models, for example, the Siamese neural network, hold consistency between predictions of one model on a sample augmented in two different ways.
 
 \section{Unsupervised model selection}
-In our research, we decided to use Self-organizning map (SOM) as model of consistency of data points from same class. Self-organizning map was described in section \ref{sec:som}. SOM was used as unsupervised component of loss function. Unlike other unsupervised techniques, SOM can provide nonlinear transformation of the input and it is neural network based, so its complexity is scalable. We expected that clustering using SOM can be usefull to determine similarity of training examples.
-
+In our research, we decided to use a Self-organizing map (SOM)\cite{kohonen1990} for the evaluation of the consistency of data points from the same class. A self-organizing map was described in section \ref{sec:som}. SOM was used as an unsupervised component of the loss function. Unlike other unsupervised techniques, SOM can provide a nonlinear transformation of the input into the low-dimensional grid. Another advantage of SOM is that it is neural network based, so its complexity is scalable. We expected that clustering using SOM could be useful to determine the similarity of training examples.
 
 
 \section{Related work}
+Since we came up with this concept of using a Self-organizing map as auxiliary information for a semi-supervised model, we searched for similar concepts in the literature and found few models, that used SOM in combination with another model, such as mnSOM \cite{Tokunaga}, Tamazirt`s model \cite{Tamazirt} or DESOM model \cite{desom2019}.
+
+Tokunaga and Furukawa \cite{Tokunaga} proposed a model that connects SOM and supervised model, for example, MLP in a generalized framework called the modular network SOM (mnSOM). The mnSOM consists of trainable MLPs that are used instead of vectors representing the data prototypes, therefore moving the functionality of the SOM model towards multi-objective learning that captures the organization in a function space rather than in vector space. The training of the MLP is separated from the training of the SOM. 
+
+Another model that utilizes both an MLP and SOM was proposed in a very specific application of intelligent indoor 3D positioning by Tamazirt and colleagues \cite{Tamazirt}. In their model, the adapted SOM is paired with several MLP networks. It serves for clustering and does not directly interfere with the learning in the MLPs. 
+
+The one most worth explaining is the model Deep Embedded Self-Organizing Map \cite{desom2019}, which includes the SOM layer in auto encoder model and defines loss function based on SOM.
+
 
 \subsection{DESOM model}
 
-Forest et al. \cite{desom2019} introduced introduced model called  Deep Embedded Self-Organizing Map (DESOM). Authors combined two unsupervised models - autoencoder and SOM. Combined model is trained in unsupervised setup and has really good results in clustering task. Clusters are taken from SOM part of model. It is first ever usage of SOM in deterministic autoencoder model. Proposed model architecture is described in figure \ref{fig:desom}. 
+Forest et al. \cite{desom2019} introduced a model called  Deep Embedded Self-Organizing Map (DESOM). The authors combined two unsupervised models - autoencoder and SOM. The combined model was trained in an unsupervised setup and achieved good results in the clustering task. Clusters were taken from the SOM part of the model. It was the first ever usage of SOM in a deterministic autoencoder model. The proposed model architecture can be seen in Figure \ref{fig:desom}. 
 
 
 \begin{figure}[h!]
@@ -25,70 +32,60 @@ Forest et al. \cite{desom2019} introduced introduced model called  Deep Embedded
         \label{fig:desom}
 \end{figure}
 
-DESOM model uses combined loss in encoder network training - weighted sum of reconstruction loss $\mathcal{L}_r$ (which is standardly used in autoencoder) and SOM loss $\mathcal{L}_{som}$.
-SOM loss is defined as $$\mathcal{L}_{som} = \sum_i \sum_{k=1}^K \mathcal{K}^T (\delta (\mathcal{X}(f_{W_e}(x_i)), k)) {||f_{W_e}(x_i) - m_k||}^2$$. Where neurons in SOM are numbered from $1$ to $\mathcal{K}$ and weights of $k$-th neuron (prototype) are denoted $m_k$. $\mathcal{K}^T$ is neighbour function dependant on time $T$ which computes neighbourhood relationship based on difference $\delta$ between $k$-th neuron and winner neuron in SOM $\mathcal{X}(f_{W_e}(x_i))$ for $i$-th input.
-Decoder part is trained only using $\mathcal{L}_r$. SOM is trained using $\mathcal{L}_{som}$. Authors used no pretraining.
+DESOM model uses combined loss in encoder network training - the weighted sum of reconstruction loss $\mathcal{L}_r$, which is conventionally used in autoencoder, and SOM loss $\mathcal{L}_{som}$.
+SOM loss is defined as $$\mathcal{L}_{som} = \sum_i \sum_{k=1}^K \mathcal{K}^T (\delta (\mathcal{X}(f_{W_e}(x_i)), k)) {||f_{W_e}(x_i) - m_k||}^2,$$ where neurons in SOM are numbered from $1$ to $\mathcal{K}$ and weights of $k$-th neuron are denoted $m_k$. $\mathcal{K}^T$ is neighbour function dependant on time $T$ which computes neighbourhood relationship based on position difference $\delta$ between $k$-th neuron and position of winner neuron $\mathcal{X}(f_{W_e}(x_i))$ for $i$-th input.
+The decoder part is trained only using $\mathcal{L}_r$. SOM is trained using $\mathcal{L}_{som}$. The authors used no pre-training.
 
-In their experimental part, they focused on unsupervised clustering accuracy (using SOM part of model), in which DESOM has best results in all three datasets (MNIST, Fashion-MNIST, REUTERS-10k). They also examined Purity and NMI matrices, in which they model compared with other clustering models achieved best in majority of the cases best results.
+In their experiments, they focused on unsupervised clustering accuracy (using the SOM part of the model), in which DESOM has the best results in all three datasets (MNIST \cite{deng2012mnist}, Fashion-MNIST \cite{xiao2017fashionmnist}, REUTERS-10k a text dataset built from the RCV1-v2 corpus \cite{rcvi}). They also examined Purity and NMI matrices, in which the model compared with other clustering models achieved the best in the majority of the cases best results.
 
-This article brings us $3$ findings important for our reseach. First, that it is possible to use some kind of extracted information (latent space representation of autoencoder) as input for SOM and the results are really good. Second, it is possible to train SOM on changing inputs and it still clusters data properly. And third, usage of another model can impove model in its task. These results support our intuition, that self-organization of data can also improve performance of semi-supervised model.
+This article brought us $3$ findings important for our research. First, that it is possible to use some kind of extracted information (latent space representation of autoencoder) as input for SOM, and the results are really good. Second, it is possible to train SOM on changing inputs and it still clusters data properly. And third, the usage of another model can improve the model in its task. These results supported our intuition, that self-organization of data can also improve the performance of semi-supervised models.
 
 
-\subsection{}
-\color{red}Increasing the share of correct clustering of characteristic signal with random losses in self-organizing maps
-\color{black}
+\section{Our approach}
+\label{our-approach}
+We extended the semi-supervised model Mean Teacher described in section \ref{mtm-chapter} and introduced the MT-SOM model. MT-SOM model is based on three main new concepts, which are feature vector representation, pre-trained Self-organizing map and mean teacher model with SOM-based consistency loss.
 
-\section{Our first approach}
-We extended semi-supervised model Mean Teacher described in section \ref{mtm-chapter}. Our model is described in details in figure \ref{fig:our-model}. We suggested to replace original unsupervised loss of the model by using distances of winner neurons in SOM. The inputs to SOM are feature vectors from Mean Teacher model. The distance between winner neurons was computed as euclidian distance of weights of selected winner neurons in multidimensional space. Other parts of MT model did not change. Lets denote weight vector of winner neuron of student $x^{1}$ and weight vector of winner neuron of teacher $x^{2}$. Consistency loss can be then computed as $$J(\theta) = \sqrt{\sum_{i=1}^n {(x^1_i - x^2_i)}^2}.$$ 
+Our semi-supervised MT-SOM model is composed of two neural networks (student and teacher) with the same layer architecture, but separate trainable weights. For each training sample, the forward pass of both networks is done and produced feature vectors are used for computation of consistency cost \color{red} označenie \color{black}, which is SOM SOM-based loss function. The output of the student network is used for supervised cost \color{red} označenie \color{black} computation, which is the Mean squared error of prediction and label, but only in the case of labeled input sample. Then, both losses are combined together and backward pass with weight update based on this final value of loss provided in the student's network. The teacher network is updated in the same way as in the Mean teacher model, it is an Exponential moving average of student. The proposition of our model is graphically shown in Figure \ref{fig:our-model}. 
+
 \begin{figure}[h!]
     \centering
-    \includegraphics{figs/mean_teacher_som-1.pdf}
-    \caption{Description of our model}
+    \includegraphics[width = 1\textwidth]{figs/mean_teacher_som-1.pdf}
+    \caption{Description of MT-SOM model}
     \label{fig:our-model}
 \end{figure}
 
 
 \color{red} zjednotit oznacenia v rovnici a obrazku !!!!! \color{black}
 
-\subsection{Feature vector usage}
-Idea of using feature vectors instead of predictions for unsupervised cost is from \cite{tuna-bmt} and it is supported by \cite{desom2019}. We decided to use it, since it worked well for BMT model and we believed it can contain more information than prediction, because it has higher dimension than output vector and still contains only extracted features that are important for classification.
 
-To strenghten our intuition, that SOM is able to cluster MT feature vectors properly, we took implemetation of Mean Teacher from authors Github repository \footnote{https://github.com/CuriousAI/mean-teacher} and produced feature vectors for setup that declared state-of-the-art results. The input dataset for MT was standard dataset CIFAR10 previously described in section \ref{dataset-cifar10}, which contains color images from $10$ classes. Then we used feature vectors as inputs for SOM. SOM was trained in unsupervised setup for $30$ epochs and the two dimensional map is was visualized in figure \ref{fig:som-cluster-mt}. We can see that neurons are quite well organised. Further investigation of difference between original CIFAR10 versus feature vectors from MT as the input is in chapter \ref{chap:som-fv-cifar}.
+\subsection{Feature vector representation}
+The idea of using feature vectors - representation of input after the last convolutional layer of model - instead of predictions for unsupervised cost is from Binary mean teacher research \cite{tuna-bmt} and it is also supported by our research in previous chapter \ref{chap:bmt-exp} and DESOM research. We decided to use it since it worked well for the BMT model and we suppose it can contain more information than prediction because it has a higher dimension than the output vector and still contains only extracted features that are important for classification.
+
+To strengthen our intuition, that SOM is able to cluster MT feature vectors properly, we took implementation of Mean Teacher from authors GitHub repository \cite{curiousai} and produced feature vectors for setup that declared state-of-the-art results. The input dataset for MT was the standard dataset CIFAR-10 previously described in section \ref{dataset-cifar10}, which contains color images from $10$ classes. Then we used feature vectors as inputs for SOM. SOM was trained in unsupervised setup for $30$ epochs and the two-dimensional map was visualized in figure \ref{fig:som-cluster-mt}. We can see that neurons are quite well organized. Further investigation of the difference between original CIFAR-10 versus feature vectors from MT as the input is in chapter \ref{chap:som-fv-cifar}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.9\textwidth]{figs/som-clusters-mt.pdf}
-    \caption[Som clusters from MT feature vectors]{In the legend, we can see 10 classes of dataset CIFAR-10. Dots in the graph show properties of neurons in $8\times8$ grid. Color means class which neuron represents and size means portion of input vectors of this class that are represented by this neuron. We can see, that space is organized into clusters and all inanimate object clusters are in the upper part. Animate object clusters are in the lower part. Also we can see that cluster of airplanes is right next to neuron that represents birds. We cas see an outlayer from the deer class in the middle, but we can explain it by looking what is in between of this oulayer and deer cluster. It is a horse cluster, so since these creatures are quite similar, it can be explanation of this outlayer.}
+    \caption[SOM clusters from MT feature vectors]{In the legend, we can see $10$ classes of dataset CIFAR-10. Dots in the graph show properties of neurons in $8\times8$ grid. Color means class which neuron represents and size means percentage of input vectors from this class from all inputs represented by this neuron as their winner neuron. We can see, that space is organized into clusters and all inanimate object clusters are in the upper part. Animate object clusters are in the lower part. Also, we can see that a cluster of airplanes is right next to neuron that represents birds. We can see one bigger outlier from the deer class in the middle, but we can explain it by looking at what is in between this outlier and the deer cluster. It is a horse cluster, so since these creatures are quite similar, it can be an explanation for this outlier.}
     \label{fig:som-cluster-mt}
 \end{figure}
 
 
-\newpage
+\subsection{Pre-trained Self-organizing map}
 
-\subsection{Problems of straight-forward implementation}
+From the DESOM paper, we knew that there exists a setup, where it is possible to co-train supportive SOM on changing inputs from another neural network. However, we believe, that this part of the model could cause the biggest complications in model development. We decided to use a pre-trained Self-organizing map instead. 
 
-To prove our new concept we designed experimental setup for semisupervised CIFAR10 classification. We used MT implementation and hidden layer architecture from authors of MT, that is available in Github repository \footnote{\url{https://github.com/CuriousAI/mean-teacher}}. Since implementation of MT is in Pytorch framework, we considered several SOM implementations and select one which is available in this GitHub repository \footnote{\url{https://github.com/giannisnik/som}}.
-Our experiment implementation is available in another repository \footnote{\url{https://github.com/sabka/dt-mt}}. Since this architecture of MT model has approximately $30$ milions parametres, we were not able to run optimisation of hyperparameters in reasonable amount of time. We tried another architecture, from Sarmads repository\footnote{\url{https://github.com/iSarmad/MeanTeacher-SNTG-HybridNet/}}, with approximately $3$ milion parametres. During our early experiments, we found out, that supervised pretraining of MT is crucial. Without pretraining (5 epochs were enough) MT did not increase training accuracy. Model was still too complex and we were unable to investigate all the hyperparameter options with our computational performance.
-\color{red} TREBA SA POZRIET NA KOD A SFINALIZOVAT ! otestovat, ci sa to trenuje alebo nie, oddelit baseline, dat ako samostatny exp !!! \color{black}
+The inputs of SOM are crucial, as we decided to use feature vectors as input of SOM, we needed to achieve them at the beginning of the training. Hence, we pre-trained the student network of the Mean teacher model in a supervised way with labeled part of the training dataset. Then we did a forward pass for each training sample, no matter if it was labeled or unlabeled, and saved feature vectors. This set of feature vectors was our training dataset for SOM training. We pre-trained the SOM model on it. 
 
-\color{red} pravda je, ze kod dava nan pri SOM metrikach aj SOM loss, moj tip je ze je zla somka \color{black}
-
-\color{red} prvych 30 epoch training acc stupa, a overfitne na skoro 100 percent, val acc ostava na cca 60 percent a nejde hore\color{black}
-
-\color{red} 31. epocha -> pouzivame pevne dane num of iters 30, ale ako cislo iteracie pride cislo epochy MT \color{black}
-
-\color{red} fixla som nany, asi, davam kappa = 1/500, som trenujem od 0. epochy ale pouzivam az po 3 epochach \color{black}
-
-\color{red}cez noc - 180 epoch, rychlo overfitne a skonci na 100 trenovacej a 50ish test \color{black}
+In the chapter \ref{chap:mlp-som}, we tested this concept of pre-trained SOM model usage in a more simple setup, where we used table data. Table data does not need to be transformed into feature vectors by convolutions neural network, since they are not images. So in the experiment, we used only vanilla input data.
 
 
-\section{Our second approach}
-Based on previous small experiments, we decided to redefine our model.
-We decided to create model based on two main components: unsupervised loss based on self-organization representation of data in and usage of feature vectors from semisupervised mean teacher model.
-
-pretrained SOM na FV z MT (5\% CIFAR10)
-→ 
-MLP + som loss (zase trojicky)
+\subsection{SOM-based consistency loss}
+Another crucial component of the model was new consistency loss, which should have taken into account the distances of winner neurons of two data points on the SOM map. Since SOM clusters data, we believed, that if data are unlabeled, this topological information can help in their classification. As described in the DESOM section, there was a proposition for SOM-based loss function. We were inspired by this research in some way, but introduced and tested custom SOM losses in chapter \ref{chap:mlp-som} for the supervised model and \ref{chap:mt-exp} for the unsupervised model.
 
 
-\color{red} TODO \color{black}
+\section{Sub-experiments}
+Since we introduced a new model with many hyperparameters, experimental investigation of all of them with different combinations of values would have extremely high computational demand and could end with unsure results. Our solution was to investigate the main components of the MT-SOM model separately and in more simple setups. Based on developed knowledge, we planned to choose good parts of setups and combine them into the final model.
+
+The following two chapters are dedicated to SOM-based consistency loss development and feature vector usage as SOM inputs. In chapter \ref{chap:mlp-som}, we look at the supervised model using auxiliary SOM-based loss and its accuracy compared to the baseline model without this auxiliary information.
+In chapter \ref{chap:som-fv-cifar}, we compare SOM qualitative and quantitative metrics in the case when image dataset is used, versus when feature vectors of images are used.

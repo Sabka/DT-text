@@ -44,14 +44,14 @@
 % zrusime farebne ramiky okolo liniek aby pdf
 % vyzeralo rovnako ako tlacena verzia
 \usepackage[hidelinks,breaklinks]{hyperref}
-
+\usepackage{hhline}
 
 % -------------------
 % --- Definicia zakladnych pojmov
 % --- Vyplnte podla vasho zadania, rok ma byt rok odovzdania
 % -------------------
-\def\mfrok{2023}
-\def\mfnazov{Semi-supervised learning in \\Deep Neural Networks}
+\def\mfrok{2024}
+\def\mfnazov{Auxiliary self-organization based loss for Semi-supervised learning}
 \def\mftyp{Diploma Thesis}
 \def\mfautor{Bc. Sabína Samporová}
 \def\mfskolitel{RNDr. Kristína Malinovská, PhD.}
@@ -192,14 +192,12 @@ Supervisor: & \mfskolitel \\
 \newpage 
 \section*{Abstrakt}
 
-\color{red}
-Hlboké neurónové siete sú v súčasnosti pravdepodobne najpoužívanejšími a najskúmanejšími modelmi v strojovom učení s aplikáciami v mnohých rôznych oblastiach. Trénovanie takýchto modelov si však vyžaduje množstvo adekvátne označených trénovacích dát, ale zvyčajne je dobre označených dát z reálneho sveta málo. Paradigma semi-supervised learning (čiastočne riadené učenie) rieši tento problém prostredníctvom rôznych techník, ktoré sú zvyčajne založené na vyjadrení a vyhodnotení vzdialenosti medzi príznakovými vektormi (embeddings) označených a neoznačených trénovacích dát a učenie je založené na miere ich podobnosti. Príkladom tohto prístupu je trieda modelov hlbokých neurónových sietí založených na takzvanom Mean Teacher model. V tejto práci skúmame spomínaný model a možnosti jeho vylepšenia s využitím samoorganizujúceho princípu.
-
-\color{black}
+Paradigma čiastočne riadeného učenia je alternatívou k najrozšírenejšiemu spôsou učenia umelých neurónových sietí - učeniu s učiteľom, ktoré na trénovanie modelu potrebuje súbor vstupných dát, z ktorého každý má priradené označenie. Neurónové siete, ktoré sú trénované pomocou čiastočne riadeného učenia, si vystačia s malou časťou označených dát a väčším množstvom neoznačených dát. Keďže priradzovanie označní k údajom je náročné na zdroje, táto paradigma môže časovo zefektívniť prípravu modelu.
+V tejto diplomovej práci sme navrhli model MT-SOM, rozšírenie čiastočne riadeného modelu Mean teacher, vylepšené o samoorganizáciu. Samoorganizácia je zapojená prostredníctvom stratovej funkcie, ktorú sme tiež navrhli. Ukázali sme, že tento model má lepšiu testovaciu presnosť ako základný model trénovaný s učiteľom, s rovnakým podielom označených dát a vďaka tomu môže byť užitočný pre úlohy v čiastočne-riadenom nastavení. Počas vývoja modelu MLP-SOM sme testovali stratovú funkciu založenú na samoorganizácii aj v učení s učiteľom a ukázali sme, že aj v tejto situácii pomocná stratová funkcia pomáha výkonu modelu.
 
 
 
-\paragraph*{Kľúčové slová:} 
+\paragraph*{Kľúčové slová:} umelé neurónové siete, čiastočne riadené učenie, Mean teacher model, samoorganizácia, Samo-organizujúca sa mapa, pomocná stratová funkcia
 
 
 % --- Koniec Abstrakt - Slovensky
@@ -211,16 +209,11 @@ Hlboké neurónové siete sú v súčasnosti pravdepodobne najpoužívanejšími
 \newpage 
 \section*{Abstract}
 
-\color{red}
-
-These days, Deep neural networks are the most widely used and researched models in machine learning, with application in many different domains. However, training of such models requires an abundance of adequately labeled data and labels for the real world data are scarce. The semi-supervised learning paradigm aims at leveraging this problem via various different techniques that would typically involve capturing and evaluating the distance between the feature vectors of the learned labeled and unlabeled data and learning is based on similarity. This approach is used for example in the popular Mean Teacher model (MT). In this thesis, we investigate this model and look for posibilities of improvement using principle of self-organization.
-
-\color{black}
+Semi-supervised learning paradigm is alternative to most used supervised learning, which need labeled dataset for model training. Neural networks that are trained in semi-supervised setup suffice with small portion of labeled data and greater amount of unlabeled data. Since labeling the data is demanding on resources, this paradigm can make model training more time-efficient.
+In this thesis, we proposed MT-SOM model, extension of Mean teacher semi-supervised model, which improve semi-supervised model with self-organization. The self-organization is engaged via loss function, which we also proposed. We shown, that this model has better performance, that supervised baseline with the same portion of labeled samples, therefore it can be useful for semi-supervised tasks. During development of MLP-SOM model, we tested self-organization based loss also in supervised task and showed that also in supervised setup, auxiliary loss helped performance of the model.
 
 
-
-
-\paragraph*{Keywords:} neural networks, semi-supervised learning, mean-teacher model, unsupervised learning, self-organizing map % , \color{red} TODO \color{black}
+\paragraph*{Keywords:} artificial neural networks, semi-supervised learning, Mean teacher model, self-organization, Self-organizing map, auxiliary loss
 
 
 % --- Koniec Abstrakt - Anglicky
